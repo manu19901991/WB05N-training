@@ -1,8 +1,3 @@
----
-title: add the below includes at the beginning of main.c
-
----
-
 # STM32WB05N gatt server basic examples with minimal set of functions only in main.c
 
 # add the below includes at the beginning of main.c in /* USER CODE BEGIN Includes *

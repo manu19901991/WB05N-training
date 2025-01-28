@@ -423,6 +423,27 @@ The following code configures and sets the advertising parameters and data for t
 
 
 ```c=
+ret = aci_gap_set_advertising_configuration(0, GAP_MODE_GENERAL_DISCOVERABLE,
+    ADV_PROP_CONNECTABLE | ADV_PROP_SCANNABLE | ADV_PROP_LEGACY,
+    ADV_INTERV_MIN,
+    ADV_INTERV_MAX,
+    ADV_CH_ALL,
+    STATIC_RANDOM_ADDR, NULL,
+    ADV_NO_WHITE_LIST_USE,
+    0, /* 0 dBm */
+    LE_1M_PHY, /* Primary advertising PHY */
+    0, /* 0 skips */
+    LE_1M_PHY, /* Secondary advertising PHY. Not used with legacy advertising. */
+    0, /* SID */
+    0 /* No scan request notifications */);
+
+if (ret != BLE_STATUS_SUCCESS) {
+    Error_Handler();
+    return ret;
+} else {
+    HAL_Delay(100);
+}
+
 ret = aci_gap_set_advertising_data_nwk(0, ADV_COMPLETE_DATA, sizeof(adv_data), adv_data);
 
 if (ret != BLE_STATUS_SUCCESS) {
@@ -440,12 +461,7 @@ Advertising_Set_Parameters[0].Max_Extended_Advertising_Events = 0;
 ret = aci_gap_set_advertising_enable(ENABLE, 1, Advertising_Set_Parameters);
 
 if (ret != BLE_STATUS_SUCCESS) {
-    Error_Handler();
-    return ret;
-} else {
-    HAL_Delay(100);
-}
-
+    Error
  ```                
  
  # here we add service an characteristic

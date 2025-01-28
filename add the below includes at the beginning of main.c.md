@@ -461,7 +461,12 @@ Advertising_Set_Parameters[0].Max_Extended_Advertising_Events = 0;
 ret = aci_gap_set_advertising_enable(ENABLE, 1, Advertising_Set_Parameters);
 
 if (ret != BLE_STATUS_SUCCESS) {
-    Error
+    Error_Handler();
+    return ret;
+} else {
+    HAL_Delay(100);
+}
+
  ```                
  
  # here we add service an characteristic

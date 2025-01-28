@@ -683,28 +683,6 @@ static void User_Process(void)
 ---
 
 ```c
-void hci_le_connection_complete_event(uint8_t Status,
-                                      uint16_t Connection_Handle,
-                                      uint8_t Role,
-                                      uint8_t Peer_Address_Type,
-                                      uint8_t Peer_Address[6],
-                                      uint16_t Conn_Interval,
-                                      uint16_t Conn_Latency,
-                                      uint16_t Supervision_Timeout,
-                                      uint8_t Master_Clock_Accuracy)
-{
-  connected = TRUE;
-  pairing = TRUE;
-  paired = TRUE;
-  connection_handle = Connection_Handle;
-}
-
-void hci_le_enhanced_connection_complete_event(uint8_t Status,
-
-
-
-```c=
-
 
 void hci_le_connection_complete_event(uint8_t Status,
                                       uint16_t Connection_Handle,
@@ -717,10 +695,14 @@ void hci_le_connection_complete_event(uint8_t Status,
                                       uint8_t Master_Clock_Accuracy)
 {
   connected = TRUE;
+
   pairing = TRUE;
   paired = TRUE;
+
   connection_handle = Connection_Handle;
+
 }
+
 
 void hci_le_enhanced_connection_complete_event(uint8_t Status,
                                                uint16_t Connection_Handle,
@@ -734,6 +716,7 @@ void hci_le_enhanced_connection_complete_event(uint8_t Status,
                                                uint16_t Supervision_Timeout,
                                                uint8_t Master_Clock_Accuracy)
 {
+
   hci_le_connection_complete_event(Status,
                                    Connection_Handle,
                                    Role,
@@ -745,99 +728,121 @@ void hci_le_enhanced_connection_complete_event(uint8_t Status,
                                    Master_Clock_Accuracy);
 }
 
-void hci_disconnection_complete_event(uint8_t Status,
+void hci_disconnection_complete_event(uint8_t  Status,
                                       uint16_t Connection_Handle,
-                                      uint8_t Reason)
+                                      uint8_t  Reason)
 {
-  uint8_t bdaddr[6];
-  uint8_t ret;
+	uint8_t bdaddr[6];
+	uint8_t ret;
   connected = FALSE;
-  pairing = FALSE;
-  paired = FALSE;
+  pairing   = FALSE;
+  paired    = FALSE;
 
   /* Make the device connectable again */
   set_connectable = TRUE;
   connection_handle = 0;
 
   Advertising_Set_Parameters_t Advertising_Set_Parameters[1];
-  uint8_t adv_data[] =
-  {
-    0x02, AD_TYPE_FLAGS, FLAG_BIT_LE_GENERAL_DISCOVERABLE_MODE | FLAG_BIT_BR_EDR_NOT_SUPPORTED,
-    2, 0x0A, 0x00, /* Transmission Power (0 dBm) */
-    10, 0x09, SENSOR_DEMO_NAME,  /* Complete Name */
-    13, 0xFF, 0x01, /* SKD version */
-    0x00, /* generic device */
-    0x00,
-    0xF4, /* ACC+Gyro+Mag 0xE0 | 0x04 Temp | 0x10 Pressure */
-    0x00, /*  */
-    0x00, /*  */
-    bdaddr[5], /* BLE MAC start - MSB first - */
-    bdaddr[4],
-    bdaddr[3],
-    bdaddr[2],
-    bdaddr[1],
-    bdaddr[0]  /* BLE MAC stop */
-  };
 
-  adv_data[23] |= 0x01; /* Sensor Fusion */
+                   uint8_t adv_data[] =
+                   {
+                     0x02, AD_TYPE_FLAGS, FLAG_BIT_LE_GENERAL_DISCOVERABLE_MODE | FLAG_BIT_BR_EDR_NOT_SUPPORTED,
+                     2, 0x0A, 0x00, /* Trasmission Power (0 dBm) */
+                     10, 0x09, SENSOR_DEMO_NAME,  /* Complete Name */
+                     13, 0xFF, 0x01, /* SKD version */
+                     0x00, /* generic device */
+                     0x00,
+                     0xF4, /* ACC+Gyro+Mag 0xE0 | 0x04 Temp | 0x10 Pressure */
+                     0x00, /*  */
+                     0x00, /*  */
+                     bdaddr[5], /* BLE MAC start - MSB first - */
+                     bdaddr[4],
+                     bdaddr[3],
+                     bdaddr[2],
+                     bdaddr[1],
+                     bdaddr[0]  /* BLE MAC stop */
+                   };
+
+                   adv_data[23] |= 0x01; /* Sensor Fusion */
 
   ret = aci_gap_set_advertising_configuration(0, GAP_MODE_GENERAL_DISCOVERABLE,
-                                              ADV_PROP_CONNECTABLE | ADV_PROP_SCANNABLE | ADV_PROP_LEGACY,
-                                              ADV_INTERV_MIN,
-                                              ADV_INTERV_MAX,
-                                              ADV_CH_ALL,
-                                              STATIC_RANDOM_ADDR, NULL,
-                                              ADV_NO_WHITE_LIST_USE,
-                                              0, /* 0 dBm */
-                                              LE_1M_PHY, /* Primary advertising PHY */
-                                              0, /* 0 skips */
-                                              LE_1M_PHY, /* Secondary advertising PHY. Not used with legacy advertising. */
-                                              0, /* SID */
-                                              0 /* No scan request notifications */);
+                                                               ADV_PROP_CONNECTABLE | ADV_PROP_SCANNABLE | ADV_PROP_LEGACY,
+                                                               ADV_INTERV_MIN,
+                                                               ADV_INTERV_MAX,
+                                                               ADV_CH_ALL,
+                                                               STATIC_RANDOM_ADDR, NULL,
+                                                               ADV_NO_WHITE_LIST_USE,
+                                                               0, /* 0 dBm */
+                                                               LE_1M_PHY, /* Primary advertising PHY */
+                                                               0, /* 0 skips */
+                                                               LE_1M_PHY, /* Secondary advertising PHY. Not used with legacy advertising. */
+                                                               0, /* SID */
+                                                               0 /* No scan request notifications */);
 
-  if (ret != BLE_STATUS_SUCCESS) {
-    Error_Handler();
-  } else {
-    HAL_Delay(100);
-  }
 
-  ret = aci_gap_set_advertising_data_nwk(0, ADV_COMPLETE_DATA, sizeof(adv_data), adv_data);
-  if (ret != BLE_STATUS_SUCCESS) {
-    Error_Handler();
-  } else {
-    HAL_Delay(100);
-  }
 
-  Advertising_Set_Parameters[0].Advertising_Handle = 0;
-  Advertising_Set_Parameters[0].Duration = 0;
-  Advertising_Set_Parameters[0].Max_Extended_Advertising_Events = 0;
+                   if (ret != BLE_STATUS_SUCCESS)
+                     {
+                  	    Error_Handler();
+                     }
+                     else
+                     {
+                  	   HAL_Delay(100);
+                     }
 
-  /* Enable advertising */
-  ret = aci_gap_set_advertising_enable(ENABLE, 1, Advertising_Set_Parameters);
-  if (ret != BLE_STATUS_SUCCESS) {
-    Error_Handler();
-    while (1);
-  } else {
-    HAL_Delay(100);
-  }
+                   ret = aci_gap_set_advertising_data_nwk(0, ADV_COMPLETE_DATA, sizeof(adv_data), adv_data);
+                     if (ret != BLE_STATUS_SUCCESS)
+                     {
+                  	   Error_Handler();                   }
+                     else
+                     {
+                  	   HAL_Delay(100);                   }
+
+
+                     Advertising_Set_Parameters[0].Advertising_Handle = 0;
+                     Advertising_Set_Parameters[0].Duration = 0;
+                     Advertising_Set_Parameters[0].Max_Extended_Advertising_Events = 0;
+
+                     /* enable advertising */
+                     ret = aci_gap_set_advertising_enable(ENABLE, 1, Advertising_Set_Parameters);
+                     if (ret != BLE_STATUS_SUCCESS)
+                     {
+                  	   Error_Handler();
+                       while (1);
+                     }
+                     else
+                     {
+                  	   HAL_Delay(100);
+                     }
 }
+
 
 void Attribute_Modified_Request_CB(uint16_t Connection_Handle, uint16_t attr_handle,
                                    uint8_t data_length, uint8_t *att_data)
 {
-  if (attr_handle == TXCharHandle + 2) {
-    if (att_data[0] == 1) {
+  if (attr_handle == TXCharHandle + 2)
+  {
+    if (att_data[0] == 1)
+	{
       send_env = TRUE;
-    } else if (att_data[0] == 0) {
+    }
+	else if (att_data[0] == 0)
+	{
       send_env = FALSE;
     }
   }
 
-  if (attr_handle == RXCharHandle + 1) {
-    reception = TRUE;
-    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_7);
-  }
+  if(attr_handle == RXCharHandle + 1)
+    {
+
+	  reception = TRUE;
+	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_7);
+    }
+
+
 }
+
+
 
 void aci_gatt_srv_attribute_modified_event(uint16_t Connection_Handle,
                                            uint16_t Attr_Handle,

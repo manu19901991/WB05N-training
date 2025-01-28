@@ -151,15 +151,15 @@ void APP_UserEvtRx(void *pData)
   if (hci_pckt->type == HCI_EVENT_PKT || hci_pckt->type == HCI_EVENT_EXT_PKT)
   {
     void *data;
-    hci_event_pckt *event_pckt = (hci_event_pckt *)hci_pckt->data;
+    hci_event_pckt *event_pckt = (hci_event_pckt*)hci_pckt->data;
 
     if (hci_pckt->type == HCI_EVENT_PKT)
-    {
+	{
       data = event_pckt->data;
     }
     else
-    {
-      hci_event_ext_pckt *event_pckt = (hci_event_ext_pckt *)hci_pckt->data;
+	{
+      hci_event_ext_pckt *event_pckt = (hci_event_ext_pckt*)hci_pckt->data;
       data = event_pckt->data;
     }
 
@@ -184,7 +184,24 @@ void APP_UserEvtRx(void *pData)
       {
         if (blue_evt->ecode == hci_vendor_specific_events_table[i].evt_code)
         {
-          hci_vendor_specific_events_table[i].process((void *)
+          hci_vendor_specific_events_table[i].process((void *)blue_evt->data);
+          break;
+        }
+      }
+    }
+    else
+    {
+      for (i = 0; i < (sizeof(hci_events_table)/sizeof(hci_events_table_type)); i++)
+      {
+        if (event_pckt->evt == hci_events_table[i].evt_code)
+        {
+          hci_events_table[i].process(data);
+          break;
+        }
+      }
+    }
+  }
+}
 
 ```
 
